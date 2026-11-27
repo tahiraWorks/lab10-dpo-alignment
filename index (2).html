@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLM Lab 10 - DPO Alignment</title>
+<style>
+  :root { --bg:#fff; --fg:#1a1a1a; --muted:#666; --acc:#4f46e5; --card:#f4f4f6; --line:#cfcfd6; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#14141a; --fg:#eee; --muted:#aaa; --acc:#818cf8; --card:#22222b; --line:#444; }
+  }
+  body { font-family: system-ui, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px 16px;
+         background: var(--bg); color: var(--fg); }
+  h1 { margin-bottom: 4px; }
+  .sub { color: var(--muted); margin-top: 0; }
+  .tabs { display: flex; gap: 8px; margin: 20px 0 10px; flex-wrap: wrap; }
+  .tabs button { padding: 10px 16px; border: 1px solid var(--acc); background: var(--bg);
+                 color: var(--acc); border-radius: 8px; cursor: pointer; font: inherit; }
+  .tabs button.on { background: var(--acc); color: #fff; }
+  .row { display: flex; gap: 8px; margin: 8px 0 12px; }
+  .row input { flex: 1; padding: 10px; background: var(--card); color: var(--fg);
+               border: 1px solid var(--line); border-radius: 8px; font: inherit; }
+  .row button { padding: 10px 16px; background: var(--acc); color: #fff; border: 0;
+                border-radius: 8px; cursor: pointer; font: inherit; }
+  iframe { width: 100%; height: 720px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
+  .note { color: var(--muted); font-size: .9rem; }
+  ol { line-height: 1.7; }
+</style>
+</head>
+<body>
+<h1>LLM Lab 10: Alignment Experiment</h1>
+<p class="sub">University of Gwadar, BS IT 8th Semester. Qwen2.5-0.5B before and after DPO.</p>
+
+<div class="tabs">
+  <button id="b1" class="on">App 1: Base model (before DPO)</button>
+  <button id="b2">App 2: DPO model (after DPO)</button>
+</div>
+
+<div class="row">
+  <input id="link" placeholder="Paste the Colab link here, e.g. https://xxxxx.gradio.live">
+  <button id="load">Load app</button>
+</div>
+<p class="note" id="msg"></p>
+<iframe id="f" title="app"></iframe>
+
+<p class="note">The apps run in Google Colab, so the link only works while the notebook is running.
+If the page stays blank, open the link directly in a new tab.</p>
+
+<h3>Test prompts (click one under "Examples" in the app)</h3>
+<ol>
+  <li>What is PPO (Proximal Policy Optimization) in reinforcement learning? Explain simply.</li>
+  <li>What is the difference between PPO and DPO?</li>
+  <li>I have a job interview in 2 days and I feel stressed. What should I do?</li>
+  <li>Write a short, polite message to my class teacher asking for an extension on my assignment deadline.</li>
+  <li>If a car travels 5 km in 2.5 hours, what is its speed? Show steps.</li>
+  <li>Why did the Khan of Kalat give Gwadar to Oman in 1783?</li>
+</ol>
+
+<script>
+  const $ = id => document.getElementById(id);
+  let current = "app1";
+  const store = {};
+
+  function save(k, v) { store[k] = v; try { localStorage.setItem(k, v); } catch (e) {} }
+  function read(k) { try { return localStorage.getItem(k) || store[k] || ""; } catch (e) { return store[k] || ""; } }
+
+  function show(app) {
+    current = app;
+    $("b1").className = app === "app1" ? "on" : "";
+    $("b2").className = app === "app2" ? "on" : "";
+    const url = read(app);
+    $("link").value = url;
+    $("f").src = url || "about:blank";
+    $("msg").textContent = url ? "" : (app === "app1"
+      ? "Paste the App 1 link from Colab, then click Load app."
+      : "App 2 appears here after the DPO model is trained. Paste its link, then click Load app.");
+  }
+
+  $("b1").onclick = () => show("app1");
+  $("b2").onclick = () => show("app2");
+  $("load").onclick = () => {
+    const url = $("link").value.trim();
+    if (!/^https:\/\//.test(url)) { $("msg").textContent = "The link must start with https://"; return; }
+    save(current, url);
+    $("f").src = url;
+    $("msg").textContent = "";
+  };
+  show("app1");
+</script>
+</body>
+</html>
