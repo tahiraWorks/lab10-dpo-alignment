@@ -1,0 +1,9 @@
+torch
+transformers
+trl
+peft
+datasets
+accelerate
+pandas
+huggingface_hub
+gradio
